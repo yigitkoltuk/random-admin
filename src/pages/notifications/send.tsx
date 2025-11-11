@@ -10,12 +10,14 @@ import {
   Alert,
   Radio,
   Divider,
+  Switch,
 } from "antd";
 import {
   SendOutlined,
   BellOutlined,
   UserOutlined,
   TeamOutlined,
+  NotificationOutlined,
 } from "@ant-design/icons";
 import { NotificationType } from "../../types";
 import { axiosInstance } from "../../authProvider";
@@ -32,15 +34,38 @@ export const NotificationSend: React.FC = () => {
   const { list } = useNavigation();
   const [sending, setSending] = useState(false);
   const [recipientType, setRecipientType] = useState<"all" | "specific">("all");
+  const [sendPushNotification, setSendPushNotification] = useState(false);
 
-  const handleSend = async (values: any) => {
+  interface FormValues {
+    title: string;
+    message: string;
+    type: NotificationType;
+    recipientId?: string;
+  }
+
+  const handleSend = async (values: FormValues) => {
     try {
       setSending(true);
+
+      // Send push notification if enabled and sending to all users
+      if (sendPushNotification && recipientType === "all") {
+        await axiosInstance.post("/notifications/push/broadcast", {
+          title: values.title,
+          message: values.message,
+          data: {
+            type: values.type,
+          },
+        });
+        message.success("Push notification sent to all users");
+      }
+
+      // Send in-app notification
       const payload = {
         title: values.title,
         message: values.message,
         type: values.type,
-        recipientId: recipientType === "specific" ? values.recipientId : undefined,
+        recipientId:
+          recipientType === "specific" ? values.recipientId : undefined,
       };
 
       await axiosInstance.post("/notifications/admin/send", payload);
@@ -49,8 +74,15 @@ export const NotificationSend: React.FC = () => {
       setTimeout(() => {
         list("notifications");
       }, 1000);
-    } catch (error: any) {
-      message.error(error.response?.data?.message || "Failed to send notification");
+    } catch (error: unknown) {
+      let errorMessage = "Failed to send notification";
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        errorMessage = axiosError.response?.data?.message || errorMessage;
+      }
+      message.error(errorMessage);
     } finally {
       setSending(false);
     }
@@ -59,14 +91,21 @@ export const NotificationSend: React.FC = () => {
   return (
     <div style={{ padding: "24px" }}>
       <div className="simple-form-card">
-        <div style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div
+          style={{
+            marginBottom: 24,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <BellOutlined style={{ fontSize: 20 }} />
-            <span style={{ fontSize: 20, fontWeight: 600 }}>Send Notification</span>
+            <span style={{ fontSize: 20, fontWeight: 600 }}>
+              Send Notification
+            </span>
           </div>
-          <Button onClick={() => list("notifications")}>
-            Go Back
-          </Button>
+          <Button onClick={() => list("notifications")}>Go Back</Button>
         </div>
 
         <Alert
@@ -110,6 +149,24 @@ export const NotificationSend: React.FC = () => {
               </Radio.Group>
             </Form.Item>
 
+            {recipientType === "all" && (
+              <Form.Item label="Push Notification">
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Switch
+                    checked={sendPushNotification}
+                    onChange={setSendPushNotification}
+                    checkedChildren={<NotificationOutlined />}
+                    unCheckedChildren={<NotificationOutlined />}
+                  />
+                  <Alert
+                    message="Send push notification via OneSignal to all users' devices"
+                    type="info"
+                    showIcon
+                  />
+                </Space>
+              </Form.Item>
+            )}
+
             {recipientType === "specific" && (
               <Form.Item
                 label="User ID"
@@ -121,10 +178,7 @@ export const NotificationSend: React.FC = () => {
                   },
                 ]}
               >
-                <Input
-                  placeholder="Enter user ID"
-                  prefix={<UserOutlined />}
-                />
+                <Input placeholder="Enter user ID" prefix={<UserOutlined />} />
               </Form.Item>
             )}
           </div>
