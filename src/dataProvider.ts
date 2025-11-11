@@ -121,7 +121,7 @@ export const dataProvider: DataProvider = {
   },
 
   getApiUrl: () => {
-    return "http://localhost:3000";
+    return import.meta.env.VITE_PUBLIC_API || "http://localhost:3000";
   },
 
   custom: async ({ url, method, filters, sorters, payload, headers }) => {

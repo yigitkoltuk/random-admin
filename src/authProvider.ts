@@ -3,7 +3,8 @@ import axios from "axios";
 
 export const TOKEN_KEY = "random_access_token";
 export const REFRESH_TOKEN_KEY = "random_refresh_token";
-export const API_URL = "http://localhost:3000";
+export const API_URL =
+  import.meta.env.VITE_PUBLIC_API || "http://localhost:3000";
 
 // Create axios instance with interceptors
 export const axiosInstance = axios.create({
