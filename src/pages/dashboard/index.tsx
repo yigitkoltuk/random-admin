@@ -22,7 +22,7 @@ import {
   RiseOutlined,
   FallOutlined,
 } from "@ant-design/icons";
-import { Column, Pie, TinyArea } from "@ant-design/charts";
+import { Column, Pie } from "@ant-design/charts";
 import { axiosInstance } from "../../authProvider";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";

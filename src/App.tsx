@@ -25,7 +25,6 @@ import { Dashboard } from "./pages/dashboard";
 import {
   UserOutlined,
   TeamOutlined,
-  PictureOutlined,
   WarningOutlined,
   BulbOutlined,
   ClockCircleOutlined,
@@ -43,9 +42,6 @@ import { UserCreate } from "./pages/users/create";
 
 import { MatchList } from "./pages/matches/list";
 import { MatchShow } from "./pages/matches/show";
-
-import { PhotoList } from "./pages/photos/list";
-import { PhotoShow } from "./pages/photos/show";
 
 import { ReportList } from "./pages/reports/list";
 import { ReportShow } from "./pages/reports/show";
