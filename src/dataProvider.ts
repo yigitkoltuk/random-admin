@@ -54,9 +54,13 @@ export const dataProvider: DataProvider = {
         total = data.length;
       } else {
         // Standard format with data and total
-        responseData = data.data || data;
+        // Check for common response patterns: data.data, data.reports, data.users, etc.
+        responseData =
+          data.data || data.reports || data.users || data.matches || data;
         total =
-          data.total || (Array.isArray(responseData) ? responseData.length : 0);
+          data.pagination?.total ||
+          data.total ||
+          (Array.isArray(responseData) ? responseData.length : 0);
       }
 
       return {

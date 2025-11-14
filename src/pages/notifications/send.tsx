@@ -47,7 +47,7 @@ export const NotificationSend: React.FC = () => {
     try {
       setSending(true);
 
-      // Send push notification if enabled and sending to all users
+      // Send push notification if enabled a1nd sending to all users
       if (sendPushNotification && recipientType === "all") {
         await axiosInstance.post("/notifications/push/broadcast", {
           title: values.title,
